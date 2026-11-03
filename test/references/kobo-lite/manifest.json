@@ -1,0 +1,14 @@
+{
+  "tharon": {
+    "time": 1792785600000,
+    "sha256": "abed293aee4d2d4542a84cedc4fcb0dae75cd51b08dc7f2d5cc199b0b1121993"
+  },
+  "la-baule": {
+    "time": 1792785600000,
+    "sha256": "ca33e4b30556eedfa09197181569e808a346f5bfa48b61fe28994ffd21faf53f"
+  },
+  "suscinio": {
+    "time": 1792785600000,
+    "sha256": "47767bc2ccbefc02a4059a72b1b3e0d7902342260384fb70e789fe8ba5b633d0"
+  }
+}

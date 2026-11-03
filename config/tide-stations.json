@@ -1,0 +1,5 @@
+{
+  "tharon": { "site_id": "pointe-de-saint-gildas", "site_name": "Pointe de Saint-Gildas", "latitude": 47.129192, "longitude": -2.234511, "distance_km": 6.856 },
+  "la-baule": { "site_id": "le-pouliguen", "site_name": "Le Pouliguen", "latitude": 47.257365, "longitude": -2.433052, "distance_km": 4.017 },
+  "suscinio": { "site_id": "le-logeo", "site_name": "Le Logeo", "latitude": 47.545193, "longitude": -2.803662, "distance_km": 7.205 }
+}

@@ -1,0 +1,39 @@
+name: Diagnose tide API (no deployment)
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: Nombre de jours UTC (1 pour le premier test)
+        type: choice
+        options: ['1', '7']
+        default: '1'
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unit tests (no API key)
+        run: python -m unittest discover -s tests_python -v
+      - name: Query real tide data
+        env:
+          API_MAREE_KEY: ${{ secrets.API_MAREE_KEY }}
+          TIDE_DAYS: ${{ inputs.days }}
+        run: python scripts/probe_tides.py --days "$TIDE_DAYS"
+      - name: Store diagnostic JSON only
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: tide-diagnostic-${{ github.run_id }}
+          path: output/tide-diagnostic/*.json
+          if-no-files-found: ignore
+          retention-days: 7
+# Deliberately no schedule, commit, Pages artifact or deploy step.
+# Candidate stations and data must be validated before enabling publication.
