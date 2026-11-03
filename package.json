@@ -1,0 +1,21 @@
+{
+  "name": "wing-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "dev": "vite --configLoader native --host 127.0.0.1",
+    "build": "vite build --configLoader native && node scripts/pages.mjs",
+    "preview": "vite preview --configLoader native --host 127.0.0.1",
+    "test": "node --test",
+    "export:kobo": "node scripts/export-kobo.mjs",
+    "prepare:kobo-pages": "node scripts/prepare-kobo-pages.mjs",
+    "test:ui": "node scripts/check-ui.mjs",
+    "tides:update": "python scripts/update_tides.py",
+    "weather:update": "node scripts/update-weather.mjs",
+    "data:verify": "node scripts/verify-real-data.mjs"
+  },
+  "dependencies": { "react": "19.1.1", "react-dom": "19.1.1" },
+  "devDependencies": { "vite": "7.1.0", "playwright": "1.56.0", "pngjs": "7.0.0" }
+}

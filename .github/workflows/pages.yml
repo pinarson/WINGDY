@@ -1,0 +1,90 @@
+name: Publish GitHub Pages
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publier après accord (nécessite aussi PAGES_PUBLISH_ENABLED=true)
+        type: boolean
+        default: false
+  schedule:
+    - cron: '17 */6 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  tides:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests_python -v
+      - name: Retrieve seven days (secret only in this process)
+        env:
+          API_MAREE_KEY: ${{ secrets.API_MAREE_KEY }}
+        run: python scripts/update_tides.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: validated-tides
+          path: public/data/tides.json
+          retention-days: 8
+          if-no-files-found: error
+  build:
+    needs: tides
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/download-artifact@v4
+        with:
+          name: validated-tides
+          path: public/data
+      - run: npm ci --no-audit --no-fund
+      - name: Retrieve real weather (no API key)
+        run: node scripts/update-weather.mjs
+      - run: npm test
+      - run: npm run build
+      - name: Install export browser (no system Chrome dependency)
+        run: npx playwright install --with-deps chromium
+      - name: Generate and validate three Kobo Lite PNGs
+        env:
+          WING_BROWSER_CHANNEL: chromium
+        run: npm run prepare:kobo-pages
+      - name: Store PNGs for review, without deploying
+        uses: actions/upload-artifact@v4
+        with:
+          name: kobo-lite-${{ github.run_id }}
+          path: dist/kobo/png/
+          retention-days: 8
+          if-no-files-found: error
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+  deploy:
+    needs: build
+    # Remains disabled until explicit publication approval and repository configuration.
+    if: ${{ vars.PAGES_PUBLISH_ENABLED == 'true' && (github.event_name == 'schedule' || inputs.publish == true) }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

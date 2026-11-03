@@ -1,0 +1,10 @@
+node_modules/
+dist/
+output/
+.vite/
+*.local
+runtime-probe.cjs
+.env
+.env.*
+__pycache__/
+*.pyc
